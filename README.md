@@ -165,7 +165,7 @@ exit
 > **Screenshot 3:** Take a screenshot showing the `docker build` output and
 > the commands run inside the container.
 >
-> `[insert screenshot]`
+> <img width="1720" height="928" alt="grafik" src="https://github.com/user-attachments/assets/42172d07-2fc3-4329-8d03-fea96f8c3848" />
 
 ### Step 4 – Commit
 
@@ -181,13 +181,15 @@ git push -u origin main
 `apt-get install`, and `rm -rf /var/lib/apt/lists/*` in a single line?
 What would happen to the image size if these were three separate `RUN` lines?
 
-> *Your answer:*
+> These commands are combined into a single RUN instruction so they execute in one image layer. After installing the packages, the package lists are deleted immediately, so they are not stored in the final image.
+> If they were written as three separate RUN instructions, Docker would create three layers. The files downloaded by apt-get update would remain in an earlier layer even after being deleted later, resulting in a larger image. Combining the commands keeps the image smaller and more efficient.
 
 **Question 2.2:** `EXPOSE 80` in a Dockerfile does **not** actually open port
 80. What does it do, and what is required at `docker run` time to actually
 forward a port?
 
-> *Your answer:*
+> EXPOSE 80 is only documentation in the Docker image. It tells Docker and other users that the application is intended to listen on port 80 inside the container, but it does not publish or open the port on the host.
+> To make the application accessible from outside the container, you must publish the port when starting the container.
 
 ---
 
@@ -228,7 +230,8 @@ docker exec -it pg psql -U postgres -c "SELECT * FROM test;"
 
 > **Screenshot 4:** Take a screenshot showing the error message.
 >
-> `[insert screenshot]`
+> 
+
 
 ### Questions for Section 3
 
