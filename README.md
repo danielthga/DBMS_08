@@ -230,7 +230,8 @@ docker exec -it pg psql -U postgres -c "SELECT * FROM test;"
 
 > **Screenshot 4:** Take a screenshot showing the error message.
 >
-> 
+><img width="1507" height="118" alt="grafik" src="https://github.com/user-attachments/assets/a4526f44-c358-4c63-9509-3eea6535d2f0" />
+ 
 
 
 ### Questions for Section 3
@@ -239,13 +240,16 @@ docker exec -it pg psql -U postgres -c "SELECT * FROM test;"
 `postgres:16` still exists on your machine. Why does recreating a container
 from the same image not restore the data?
 
-> *Your answer:*
+> A Docker image is only a read-only template used to create containers. All data created while the container is running is stored in the container's writable layer, not in the image.
+> When the container is removed, its writable layer and all stored data are deleted.
+> Creating a new container from the same postgres:16 image starts with a fresh, empty writable layer, so the previously created database and tables are not restored.
+> To preserve data, a Docker volume must be used.
 
 **Question 3.2:** `docker stop` sends SIGTERM and waits for the process to
 exit cleanly. `docker kill` sends SIGKILL immediately. Why is `docker stop`
 preferred for a database container?
 
-> *Your answer:*
+> Docker stop is preferred for a database container because it allows the database to shut down gracefully.
 
 ---
 
@@ -295,7 +299,8 @@ docker volume inspect pg_data
 > **Screenshot 5:** Take a screenshot showing the `SELECT` result after
 > container recreation, and the `docker volume inspect` output.
 >
-> `[insert screenshot]`
+> <img width="1449" height="960" alt="grafik" src="https://github.com/user-attachments/assets/25be5db3-3a4a-44df-8fc7-cdf3f628d914" />
+
 
 ### Step 3 – Clean Up
 
@@ -310,13 +315,13 @@ docker volume rm pg_data
 the host filesystem. Why is it still recommended to use named volumes instead
 of bind-mounting that path directly with `-v /var/lib/docker/volumes/...`?
 
-> *Your answer:*
+> Even though docker volume inspect pg_data shows the host-side mountpoint, you should not bind‑mount that internal Docker directory. Named volumes are safer, more portable, and more stable.
 
 **Question 4.2:** You want to back up the database. Which `docker` command
 lets you copy files out of a running container, and how would you copy the
 volume contents to a `.tar.gz` archive on the host?
 
-> *Your answer:*
+> You use docker cp to copy files out of a running container. To back up a PostgreSQL volume, you typically start a temporary container that mounts the volume and then archive its contents.
 
 ---
 
@@ -344,7 +349,8 @@ docker run --rm -it postgres:16 \
 
 > **Screenshot 6:** Take a screenshot showing the connection error.
 >
-> `[insert screenshot]`
+> <img width="1312" height="205" alt="grafik" src="https://github.com/user-attachments/assets/2b5cc46b-11f3-4ad9-889a-28386902d84a" />
+
 
 ### Step 2 – Fix It With a Custom Bridge Network
 
@@ -385,13 +391,14 @@ docker volume rm pg_data
 the default bridge. Why can containers on the default bridge **not** resolve
 each other by name, while containers on a user-defined bridge can?
 
-> *Your answer:*
+> Containers on the default bridge network cannot resolve each other by name because Docker does not provide DNS on the default bridge.
+> User‑defined bridge networks do include Docker’s built‑in DNS server, which automatically registers container names.
 
 **Question 5.2:** You could find the IP address of the `pg` container with
 `docker inspect` and hard-code it. Why is using the container name as a
 hostname strongly preferable?
 
-> *Your answer:*
+> Using the container name (e.g., pg) is strongly preferable because container IPs are not stable, while names are stable, auto‑registered, and portable across environments.
 
 ---
 
@@ -508,7 +515,8 @@ curl http://localhost:8000/studenten
 > **Screenshot 7:** Take a screenshot showing `docker compose ps` and the
 > `curl /` response.
 >
-> `[insert screenshot]`
+> <img width="1711" height="310" alt="grafik" src="https://github.com/user-attachments/assets/8681f6bb-bd79-45b9-8a4d-1c7b9cd04f21" />
+
 
 ### Step 5 – Observe Compose Networking
 
@@ -543,13 +551,15 @@ git push -u origin main
 starts before `api`. Does it guarantee that PostgreSQL is **ready to accept
 connections** when the API starts? What is the correct way to handle this?
 
-> *Your answer:*
+> No — depends_on does not guarantee that PostgreSQL is ready. It only guarantees that the container starts before the API container.
+> The correct solution is to use a healthcheck and make the API wait for PostgreSQL to become healthy.
 
 **Question 6.2:** The `api` service uses `volumes: - ./api:/app` (a bind
 mount). What is the advantage of this during development compared to
 `COPY`-ing the code into an image at build time?
 
-> *Your answer:*
+> A bind mount (./api:/app) is better during development because it gives you instant live‑reload: every time you edit a file on your host, the running container sees the change immediately.
+> With COPY, you would need to rebuild the image after every code change.
 
 ---
 
@@ -621,7 +631,8 @@ curl http://localhost:8000/studenten
 > **Screenshot 8:** Take a screenshot showing the `curl /studenten` response
 > with all four rows.
 >
-> `[insert screenshot]`
+> <img width="1708" height="346" alt="grafik" src="https://github.com/user-attachments/assets/7eab3e0d-061c-464f-a23a-4763d2fbc711" />
+
 
 ### Step 4 – Commit
 
@@ -637,13 +648,14 @@ git push
 `init.sql`, and run `docker compose up -d` again. The schema change does
 **not** appear in the database. Why not, and how do you force re-initialisation?
 
-> *Your answer:*
+> Because docker compose down does not remove the volume, PostgreSQL keeps using the old data directory, which is already initialised. The init.sql script only runs on first start, when the data directory is empty — so your changes never apply.
+> To force re‑initialisation, you must remove the volume using docker compose down -v.
 
 **Question 7.2:** `GENERATED ALWAYS AS IDENTITY` is used instead of
 `SERIAL`. What is the practical difference? Which one is the modern
 SQL-standard approach?
 
-> *Your answer:*
+> SERIAL is an old PostgreSQL shortcut that pretends to be an auto‑incrementing column, while GENERATED ALWAYS AS IDENTITY is the modern SQL‑standard way to define real identity columns with proper metadata, permissions, and predictable behaviour.
 
 ---
 
@@ -727,7 +739,8 @@ git push
 > **Screenshot 9:** Take a screenshot showing `git status` confirming
 > `.env` is not staged, and the working `curl` response.
 >
-> `[insert screenshot]`
+> <img width="1704" height="1435" alt="grafik" src="https://github.com/user-attachments/assets/12358470-5cc2-418b-a7f9-3ecbb4871cb7" />
+
 
 ### Questions for Section 8
 
