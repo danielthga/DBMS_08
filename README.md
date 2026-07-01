@@ -1,9 +1,9 @@
-# DBMS_09 – From Container to Docker Compose
+# DBMS_08 – From Container to Docker Compose
 
 **Module:** Databases · THGA Bochum  
 **Lecturer:** Stephan Bökelmann · <sboekelmann@ep1.rub.de>  
 **Repository:** <https://github.com/MaxClerkwell/DBMS_09>  
-**Prerequisites:** DBMS_01 – DBMS_07, Lecture 09  
+**Prerequisites:** DBMS_01 – DBMS_07, Lecture 08  
 **Duration:** 120 minutes
 
 ---
@@ -53,7 +53,8 @@ docker compose version
 
 > **Screenshot 1:** Take a screenshot showing both version outputs.
 >
-> `[insert screenshot]`
+> <img width="675" height="154" alt="grafik" src="https://github.com/user-attachments/assets/7c3d6aab-9b41-4bd7-958b-5266b060dff0" />
+
 
 ---
 
@@ -78,7 +79,8 @@ docker images
 > **Screenshot 2:** Take a screenshot showing `docker ps -a` and
 > `docker images` output.
 >
-> `[insert screenshot]`
+> <img width="1614" height="1639" alt="grafik" src="https://github.com/user-attachments/assets/9c8a2cc6-a030-45d4-95c9-a3c7b5cede7c" />
+
 
 ### Step 2 – Run an nginx Webserver
 
@@ -108,13 +110,16 @@ docker system df
 **Question 1.1:** The flag `-d` starts the container in detached mode.
 What happens without `-d`, and why is detached mode useful for a web server?
 
-> *Your answer:*
+> Without the -d (detached) flag, the container runs in the foreground. Its output is displayed directly in the terminal, and the terminal remains attached to the container. To use the terminal for other commands, you must stop the container (for example, by pressing Ctrl+C, which usually stops it).
+> Detached mode is useful for a web server because the server is designed to run continuously in the background while you continue using the terminal. This lets you access the web server from a browser or with tools like curl, inspect logs, or manage other containers without interrupting the running service.
 
 **Question 1.2:** `-p 8080:80` maps host port 8080 to container port 80.
 Which port is the application actually listening on inside the container?
 What would `-p 9000:80` change?
 
-> *Your answer:*
+> The application inside the container is listening on port 80. The -p option only controls how a port on the host is mapped to a port inside the container.
+
+With -p 9000:80, the application would still listen on port 80 inside the container, but it would be accessible on port 9000 of the host. Instead of visiting http://localhost:8080, you would access it at http://localhost:9000
 
 ---
 
