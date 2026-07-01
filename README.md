@@ -749,13 +749,14 @@ git push
 What is the standard practice to document which variables are required
 without committing the actual secrets?
 
-> *Your answer:*
+> You create a .env.example file that contains the variable names but no secrets.
+This file is committed to Git and tells your teammate exactly which environment variables they must create in their own .env.
 
 **Question 8.2:** Even with `.env` excluded from git, the password is still
 stored in plain text on disk. Name one mechanism Docker provides for
 production-grade secret management that avoids plain-text env files entirely.
 
-> *Your answer:*
+> Docker provides Docker Secrets, a production‑grade mechanism that stores sensitive data encrypted in memory, never on disk, and never inside environment variables.
 
 ---
 
@@ -836,7 +837,8 @@ curl http://localhost:8000/studenten
 > **Screenshot 10:** Take a screenshot showing `docker images` with the
 > final image size and the working `curl` response.
 >
-> `[insert screenshot]`
+><img width="1720" height="1098" alt="grafik" src="https://github.com/user-attachments/assets/7d1d4c7f-0ae8-4f5e-9f4b-62f11b83228d" />
+
 
 ### Step 5 – Commit
 
@@ -852,13 +854,15 @@ git push
 environment from the builder stage. The final image does not contain `pip` or
 `uv`. What security advantage does this provide?
 
-> *Your answer:*
+> By removing pip, uv, and other build‑time tools from the final image, you eliminate an entire class of supply‑chain and runtime‑execution attacks.
+> A production container that cannot install or execute arbitrary Python packages is dramatically harder to compromise.
 
 **Question 9.2:** The builder stage installs dependencies from `pyproject.toml`
 before copying the application code. Why does this ordering improve build
 cache efficiency when you frequently change only `main.py`?
 
-> *Your answer:*
+> Because Docker can reuse the dependency layer when only your application code changes.
+> By installing dependencies before copying main.py, you avoid invalidating the expensive build step every time you edit your code.
 
 ---
 
