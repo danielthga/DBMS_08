@@ -905,7 +905,8 @@ docker compose exec api whoami
 > **Screenshot 11:** Take a screenshot showing `docker compose exec api whoami`
 > returning `appuser`.
 >
-> `[insert screenshot]`
+> <img width="1000" height="210" alt="grafik" src="https://github.com/user-attachments/assets/a1f4bf0e-2b25-4520-80ae-59872e11b028" />
+
 
 ### Step 3 – Commit
 
@@ -920,13 +921,14 @@ git push
 **Question 10.1:** The `USER appuser` instruction is placed after
 `COPY . .`. Why would placing it *before* `COPY` cause a permission problem?
 
-> *Your answer:*
+> Because the non‑root user would not have permission to write into /app, so the COPY . . step would fail.
 
 **Question 10.2:** State the **Principle of Least Privilege** in one
 sentence, and name one other place in a typical web application stack
 (outside of containers) where this principle is applied.
 
-> *Your answer:*
+> A system component should run with only the minimum permissions required to perform its task — never more.
+> Database roles — applications often connect using a restricted DB user that can only SELECT or INSERT, not DROP TABLE or ALTER DATABASE.
 
 ---
 
@@ -937,19 +939,21 @@ Section 6 of the lecture shows a Dockerfile that runs both PostgreSQL and
 FastAPI in a single container. Describe two concrete operational problems
 this causes in a production environment.
 
-> *Your answer:*
+> You cannot scale the services independently.
+> You cannot update or restart one service without breaking the other.
 
 **Question B – Volume vs. Bind Mount:**  
 Compare named volumes and bind mounts. When is each type appropriate?
 
-> *Your answer:*
+> Use named volumes for stable, portable, production‑grade data storage; use bind mounts when you need live access to host files during development.
 
 **Question C – Compose and Reproducibility:**  
 A colleague says: "I can just write the `docker run` commands in a shell
 script — why do I need `docker-compose.yml`?" Give two specific advantages
 of Compose over a shell script of `docker run` commands.
 
-> *Your answer:*
+> Compose handles dependency ordering, networks, volumes, and environment automatically.
+> Compose gives you a single source of truth for the entire application.
 
 **Question D – The Complete Chain:**  
 You have now built and containerised the full stack: PostgreSQL in a
@@ -958,7 +962,14 @@ non-root image → both orchestrated by Docker Compose with credentials
 in `.env`. Describe in two sentences what each layer contributes to
 **portability** and **security**.
 
-> *Your answer:*
+> Portability:
+> Running PostgreSQL in its own container with a named volume and an init script makes the database portable across machines because Docker manages the storage location and startup logic independently of the host.
+> The FastAPI service packaged in a slim, non‑root image plus a declarative docker-compose.yml ensures the entire stack can be reproduced on any system with one command, using .env to keep configuration portable.
+>
+> Security:
+> The database volume isolates persistent data from the host filesystem, the FastAPI image drops root privileges to reduce blast radius, and Compose centralizes secrets handling so credentials never appear in the image or source code.
+> Together, these layers enforce least privilege and minimize attack surface while keeping the environment predictable and controlled.
+
 
 ---
 
